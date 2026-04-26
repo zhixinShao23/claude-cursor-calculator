@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claude & Cursor Cost Calculator – API vs Pro vs Max Plan Comparison</title>
+  <meta name="description" content="Find the cheapest way to use Claude and Cursor. Compare API cost vs Pro vs Max plan for your actual usage. Built for developers. Free, instant, no signup." />
+  <meta name="keywords" content="Claude API cost calculator, Cursor plan comparison, Claude Pro vs API cost, Claude Max vs API, Cursor Pro vs Business cost, AI coding tool cost, cheapest way to use Claude" />
+  <meta property="og:title" content="Claude & Cursor Cost Calculator – API vs Pro vs Max" />
+  <meta property="og:description" content="Stop guessing which Claude or Cursor plan is cheapest for your usage pattern. Enter your actual numbers and get an instant answer." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yoursite.com/claude-cursor-calculator" />
+  <meta property="og:image" content="https://yoursite.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Claude & Cursor Cost Calculator" />
+  <meta name="twitter:description" content="Compare Claude API, Claude Pro, Max, and Cursor pricing based on your real usage." />
+  <meta name="twitter:image" content="https://yoursite.com/og-image.png" />
+  <link rel="canonical" href="https://yoursite.com/claude-cursor-calculator" />
+
+  <!-- Structured Data: FAQ Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Is Claude API cheaper than Claude Pro?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It depends on usage. Claude Pro costs $20/month for heavy conversational use. API access is pay-per-token — for light users (under ~2M tokens/month on Sonnet), the API is cheaper. Heavy users doing 10M+ tokens/month will almost always save money with Pro or Max plans."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the breakeven point between Claude Pro and API?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Using Claude Sonnet 3.5 API pricing ($3/M input, $15/M output), the breakeven vs Claude Pro ($20/month) is roughly 1–2M tokens per month depending on your input/output ratio. This calculator computes your exact breakeven based on your usage inputs."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Should I use Cursor Pro or Cursor Business?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Cursor Pro is $20/month per seat and includes 500 fast requests + unlimited slow requests. Business adds team features, SSO, and enforced privacy mode for $40/seat/month. For solo developers, Pro is almost always sufficient."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How much does it cost to use Claude API for coding?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A typical coding session with claude-sonnet-4-5 uses roughly 2,000–8,000 input tokens and 500–2,000 output tokens per request. At $3/M input and $15/M output, a 50-request coding day costs approximately $0.50–$2.00. Monthly heavy use (200+ sessions) can cost $30–$100+ via API."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does Cursor use Claude API credits?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Cursor Pro includes bundled AI requests — you do not need a separate Claude API key for standard usage. If you exceed included requests, Cursor can use your own API key ('BYOK') and bill you directly at API rates. This calculator helps you compare which option costs less for your request volume."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <!-- Tool Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Claude & Cursor Cost Calculator",
+    "description": "Compare Claude API vs subscription plans and Cursor plan costs based on your actual usage.",
+    "applicationCategory": "DeveloperApplication",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* =============================================
+       DESIGN TOKENS — Dark Industrial Dev Aesthetic
+       ============================================= */
+    :root {
+      --bg:          #0d0f12;
+      --bg-2:        #111318;
+      --bg-3:        #161a21;
+      --surface:     #1a1e27;
+      --surface-2:   #1f242f;
+      --surface-3:   #252b38;
+
+      --border:      #272d3a;
+      --border-2:    #323a4d;
+      --border-focus:#f97316;
+
+      --text-primary:  #e8ecf0;
+      --text-secondary:#8892a0;
+      --text-muted:    #525c6e;
+      --text-code:     #7dd3fc;
+
+      --orange:      #f97316;
+      --orange-dim:  #ea6c08;
+      --orange-glow: rgba(249,115,22,0.15);
+      --orange-light: rgba(249,115,22,0.08);
+
+      --purple:      #a78bfa;
+      --purple-dim:  rgba(167,139,250,0.12);
+
+      --green:       #34d399;
+      --green-dim:   rgba(52,211,153,0.10);
+      --red:         #f87171;
+      --red-dim:     rgba(248,113,113,0.10);
+      --amber:       #fbbf24;
+      --amber-dim:   rgba(251,191,36,0.10);
+      --blue:        #60a5fa;
+      --blue-dim:    rgba(96,165,250,0.10);
+
+      --radius:    10px;
+      --radius-sm: 6px;
+      --radius-lg: 14px;
+
+      --shadow:    0 4px 20px rgba(0,0,0,0.4);
+      --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
+      --glow:      0 0 24px rgba(249,115,22,0.2);
+
+      --font-sans: 'Syne', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --max-w: 1060px;
+    }
+
+    /* =============================================
+       RESET & BASE
+       ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text-primary);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      /* subtle grid texture */
+      background-image:
+        linear-gradient(rgba(249,115,22,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(249,115,22,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    a { color: var(--orange); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    ::selection { background: var(--orange-glow); color: #fff; }
+
+    /* =============================================
+       TYPOGRAPHY
+       ============================================= */
+    h1 { font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; }
+    h2 { font-size: clamp(1.25rem, 3vw, 1.7rem); font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
+    h3 { font-size: 0.95rem; font-weight: 600; }
+    p  { color: var(--text-secondary); line-height: 1.65; }
+    code, .mono { font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-code); }
+
+    /* =============================================
+       LAYOUT
+       ============================================= */
+    .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 20px; }
+    .section { padding: 52px 0; }
+    .section--sm { padding: 32px 0; }
+
+    /* =============================================
+       SITE HEADER
+       ============================================= */
+    .site-header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(13,15,18,0.92);
+      backdrop-filter: blur(12px);
+      position: sticky; top: 0; z-index: 200;
+    }
+    .site-header .wrap {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 52px;
+    }
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .logo-icon {
+      width: 24px; height: 24px;
+      background: var(--orange);
+      border-radius: 5px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem;
+      color: #fff;
+      font-weight: 700;
+    }
+    .nav-tags { display: flex; gap: 8px; }
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 3px 9px;
+      border-radius: 4px;
+      font-weight: 500;
+      border: 1px solid;
+    }
+    .tag--orange { background: var(--orange-light); color: var(--orange); border-color: rgba(249,115,22,0.3); }
+    .tag--purple { background: var(--purple-dim); color: var(--purple); border-color: rgba(167,139,250,0.3); }
+    .tag--green  { background: var(--green-dim);  color: var(--green);  border-color: rgba(52,211,153,0.3); }
+
+    /* =============================================
+       HERO
+       ============================================= */
+    .hero {
+      padding: 72px 0 56px;
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(249,115,22,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -80px; left: 30%;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(167,139,250,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hero-eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 20px; height: 1px;
+      background: var(--orange);
+    }
+    .hero h1 { margin-bottom: 18px; }
+    .hero h1 .hl { color: var(--orange); }
+    .hero h1 .hl2 { color: var(--purple); }
+    .hero-sub {
+      font-size: 1.05rem;
+      color: var(--text-secondary);
+      max-width: 540px;
+      margin-bottom: 32px;
+      line-height: 1.65;
+    }
+    .hero-cta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .btn-cta {
+      background: var(--orange);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      border: none; cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+      text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-cta:hover {
+      background: var(--orange-dim);
+      box-shadow: var(--glow);
+      text-decoration: none;
+      transform: translateY(-1px);
+    }
+    .hero-note {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+    .hero-note span { color: var(--green); }
+
+    /* cost range teaser */
+    .cost-range {
+      display: flex; gap: 16px; flex-wrap: wrap; margin-top: 40px;
+    }
+    .cost-range-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      flex: 1; min-width: 150px;
+      position: relative; overflow: hidden;
+    }
+    .cost-range-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+    }
+    .cost-range-card.low::before  { background: var(--green); }
+    .cost-range-card.mid::before  { background: var(--amber); }
+    .cost-range-card.high::before { background: var(--red); }
+    .cost-range-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+    .cost-range-val {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .cost-range-val.low  { color: var(--green); }
+    .cost-range-val.mid  { color: var(--amber); }
+    .cost-range-val.high { color: var(--red); }
+    .cost-range-desc {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* =============================================
+       AD SLOT
+       ============================================= */
+    .ad-slot {
+      background: var(--surface);
+      border: 1px dashed var(--border-2);
+      border-radius: var(--radius);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      gap: 5px; padding: 16px;
+    }
+    .ad-slot-label { font-weight: 600; color: var(--text-muted); }
+    .ad-slot--leader { min-height: 90px; max-width: 728px; margin: 0 auto; }
+    .ad-slot--rect   { min-height: 250px; max-width: 336px; margin: 0 auto; }
+    .ad-slot--banner { min-height: 90px; }
+
+    /* =============================================
+       SECTION LABELS
+       ============================================= */
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .eyebrow::before { content: '//'; color: var(--text-muted); }
+
+    /* =============================================
+       TAB NAV (Claude / Cursor / Combined)
+       ============================================= */
+    .tab-nav {
+      display: flex; gap: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      overflow: hidden;
+      width: fit-content;
+      margin-bottom: 32px;
+    }
+    .tab-btn {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 500;
+      padding: 9px 20px;
+      background: transparent;
+      border: none; border-right: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn.active {
+      background: var(--orange);
+      color: #fff;
+    }
+    .tab-btn:not(.active):hover { background: var(--surface-2); color: var(--text-primary); }
+
+    /* =============================================
+       CALCULATOR CARD
+       ============================================= */
+    .calc-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .calc-card-header {
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .calc-card-title {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-orange { background: var(--orange); }
+    .dot-purple { background: var(--purple); }
+    .dot-green  { background: var(--green); }
+    .calc-card-body { padding: 24px; }
+
+    /* =============================================
+       FORM CONTROLS
+       ============================================= */
+    .field-group { margin-bottom: 20px; }
+    .field-label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 7px;
+    }
+    .field-hint {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+    .field-hint a { color: var(--orange); }
+
+    input[type="number"], input[type="text"], select {
+      width: 100%;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      padding: 9px 13px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+    }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%23525c6e' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer;
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    /* range slider */
+    .slider-wrap { display: flex; align-items: center; gap: 14px; }
+    input[type="range"] {
+      flex: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      background: var(--border-2);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px; height: 16px;
+      background: var(--orange);
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+      box-shadow: 0 0 0 2px var(--orange);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    .slider-val {
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      color: var(--orange);
+      min-width: 54px;
+      text-align: right;
+    }
+
+    /* form grid */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+    /* plan toggle pills */
+    .plan-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+    .plan-pill {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      padding: 7px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-2);
+      background: var(--bg-3);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .plan-pill:hover { border-color: var(--orange); color: var(--orange); }
+    .plan-pill.active { background: var(--orange-light); border-color: var(--orange); color: var(--orange); font-weight: 600; }
+
+    /* =============================================
+       RESULTS PANEL
+       ============================================= */
+    .results-panel {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .result-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      position: relative; overflow: hidden;
+    }
+    .result-box::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 2px; background: var(--border);
+    }
+    .result-box.winner::before { background: var(--green); box-shadow: 0 0 8px rgba(52,211,153,0.4); }
+    .result-box.caution::before { background: var(--amber); }
+    .result-box.danger::before  { background: var(--red); }
+
+    .result-box-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 7px;
+    }
+    .result-box-val {
+      font-family: var(--font-mono);
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .result-box-sub {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+    .result-box.winner .result-box-val { color: var(--green); }
+
+    /* Winner badge */
+    .winner-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 2px 8px;
+      background: var(--green-dim);
+      color: var(--green);
+      border-radius: 3px;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+
+    /* =============================================
+       COMPARISON TABLE
+       ============================================= */
+    .compare-wrap {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    table {
+      width: 100%; border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+    thead {
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      padding: 11px 16px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+      vertical-align: middle;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover td { background: var(--bg-3); }
+    td.best { color: var(--green); font-weight: 600; }
+    td.worst { color: var(--red); }
+    .plan-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.75rem;
+    }
+
+    /* bar comparison */
+    .bar-cell { min-width: 120px; }
+    .cost-bar {
+      height: 5px;
+      background: var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .cost-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* =============================================
+       RECOMMENDATION CARD
+       ============================================= */
+    .rec-card {
+      border: 1px solid;
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      margin-bottom: 16px;
+      display: flex; gap: 16px;
+    }
+    .rec-card.green  { background: var(--green-dim);  border-color: rgba(52,211,153,0.25); }
+    .rec-card.amber  { background: var(--amber-dim);  border-color: rgba(251,191,36,0.25); }
+    .rec-card.orange { background: var(--orange-light); border-color: rgba(249,115,22,0.25); }
+    .rec-card.blue   { background: var(--blue-dim);   border-color: rgba(96,165,250,0.25); }
+    .rec-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .rec-title {
+      font-size: 0.9rem; font-weight: 700;
+      margin-bottom: 5px;
+    }
+    .rec-card.green .rec-title  { color: var(--green); }
+    .rec-card.amber .rec-title  { color: var(--amber); }
+    .rec-card.orange .rec-title { color: var(--orange); }
+    .rec-card.blue .rec-title   { color: var(--blue); }
+    .rec-body { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; }
+
+    /* =============================================
+       BREAKEVEN CHART (pure CSS)
+       ============================================= */
+    .breakeven-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .breakeven-title {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+    }
+    .breakeven-bar-wrap {
+      position: relative;
+      height: 44px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--bg-3);
+      border: 1px solid var(--border);
+    }
+    .breakeven-fill-api {
+      position: absolute; left: 0; top: 0; bottom: 0;
+      background: linear-gradient(90deg, rgba(96,165,250,0.4), rgba(96,165,250,0.2));
+      border-right: 2px solid var(--blue);
+      display: flex; align-items: center; justify-content: flex-end;
+      padding-right: 10px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .breakeven-fill-api span {
+      font-family: var(--font-mono); font-size: 0.68rem; color: var(--blue); font-weight: 600;
+    }
+    .breakeven-fill-plan {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      background: linear-gradient(90deg, rgba(249,115,22,0.2), rgba(249,115,22,0.4));
+      border-left: 2px solid var(--orange);
+      display: flex; align-items: center; padding-left: 10px;
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .breakeven-fill-plan span {
+      font-family: var(--font-mono); font-size: 0.68rem; color: var(--orange); font-weight: 600;
+    }
+    .breakeven-marker {
+      position: absolute; top: 0; bottom: 0; width: 2px; background: var(--amber);
+      transition: left 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .breakeven-labels {
+      display: flex; justify-content: space-between;
+      margin-top: 8px;
+      font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted);
+    }
+
+    /* =============================================
+       PRICING REFERENCE TABLE
+       ============================================= */
+    .pricing-ref {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .pricing-ref-header {
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 20px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .source-note {
+      margin-top: 18px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.02);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      max-width: 760px;
+    }
+    .source-note a { color: var(--text-code); }
+
+    /* =============================================
+       SEO ARTICLE
+       ============================================= */
+    .article-section {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 56px 0;
+    }
+    .article-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 28px;
+      margin-top: 32px;
+    }
+    .article-block {
+      padding: 22px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .article-block h3 {
+      font-size: 0.92rem; font-weight: 700;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-primary);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .article-block h3::before { color: var(--orange); }
+    .article-block p { font-size: 0.84rem; line-height: 1.65; }
+    .article-block ul { padding-left: 1.2em; margin-top: 8px; }
+    .article-block li { font-size: 0.84rem; color: var(--text-secondary); line-height: 1.7; }
+
+    /* =============================================
+       FAQ
+       ============================================= */
+    .faq-section { padding: 52px 0; }
+    .faq-list { max-width: 700px; margin: 28px auto 0; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-q {
+      width: 100%; background: none; border: none;
+      text-align: left; padding: 16px 0;
+      font-family: var(--font-sans);
+      font-size: 0.92rem; font-weight: 600;
+      color: var(--text-primary); cursor: pointer;
+      display: flex; justify-content: space-between; align-items: center; gap: 12px;
+      transition: color 0.15s;
+    }
+    .faq-q:hover { color: var(--orange); }
+    .faq-chevron { width: 16px; height: 16px; transition: transform 0.22s; color: var(--text-muted); flex-shrink: 0; }
+    .faq-item.open .faq-chevron { transform: rotate(180deg); color: var(--orange); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.3s ease, padding 0.2s;
+      font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65;
+      font-family: var(--font-sans);
+    }
+    .faq-item.open .faq-a { max-height: 400px; padding-bottom: 16px; }
+
+    /* =============================================
+       FOOTER
+       ============================================= */
+    .site-footer {
+      border-top: 1px solid var(--border);
+      background: var(--bg-2);
+      padding: 28px 0;
+    }
+    .footer-inner {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 10px; text-align: center;
+    }
+    .disclaimer {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      max-width: 600px; line-height: 1.6;
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+    .disclaimer strong { color: var(--amber); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); }
+    .footer-links a:hover { color: var(--orange); text-decoration: none; }
+    .copyright { font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); }
+
+    /* =============================================
+       UTILITIES
+       ============================================= */
+    .divider { height: 1px; background: var(--border); margin: 28px 0; }
+    .text-center { text-align: center; }
+    .text-orange { color: var(--orange); }
+    .text-green  { color: var(--green); }
+    .text-red    { color: var(--red); }
+    .text-muted  { color: var(--text-muted); }
+    .mt-4 { margin-top: 16px; }
+    .mt-6 { margin-top: 24px; }
+    .mb-4 { margin-bottom: 16px; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: fadeUp 0.3s ease forwards; }
+
+    /* =============================================
+       RESPONSIVE
+       ============================================= */
+    @media (max-width: 680px) {
+      .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+      .results-panel { grid-template-columns: 1fr 1fr; }
+      .hero h1 { font-size: 1.8rem; }
+      .cost-range { flex-direction: column; }
+      .tab-btn { padding: 9px 13px; font-size: 0.75rem; }
+    }
+    @media (max-width: 420px) {
+      .results-panel { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ==================== HEADER ==================== -->
+<header class="site-header">
+  <div class="wrap">
+    <div class="logo">
+      <div class="logo-icon">$</div>
+      claude-cursor-calc
+    </div>
+    <div class="nav-tags">
+      <span class="tag tag--orange">Claude</span>
+      <span class="tag tag--purple">Cursor</span>
+      <span class="tag tag--green">Free</span>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Cost Calculator #02 — For Developers</div>
+    <h1>
+      <span class="hl">Claude</span> &amp; <span class="hl2">Cursor</span><br />
+      Cost Calculator
+    </h1>
+    <p class="hero-sub">
+      API vs Pro vs Max — which plan actually costs less for <em>your</em> usage?
+      Stop guessing. Enter your numbers and get an exact monthly cost breakdown.
+    </p>
+    <div class="hero-cta">
+      <a href="#calculator" class="btn-cta">→ Calculate My Cost</a>
+      <span class="hero-note">No signup · <span>100% free</span> · runs in browser</span>
+    </div>
+
+    <div class="cost-range">
+      <div class="cost-range-card low">
+        <div class="cost-range-label">Light user</div>
+        <div class="cost-range-val low">~$20</div>
+        <div class="cost-range-desc">1 Pro plan, low API use</div>
+      </div>
+      <div class="cost-range-card mid">
+        <div class="cost-range-label">Power user</div>
+        <div class="cost-range-val mid">$60–$120</div>
+        <div class="cost-range-desc">Pro + API + Cursor Pro</div>
+      </div>
+      <div class="cost-range-card high">
+        <div class="cost-range-label">Heavy / team</div>
+        <div class="cost-range-val high">$200–$500+</div>
+        <div class="cost-range-desc">Max plan or API at scale</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== AD SLOT 1 ==================== -->
+<div class="wrap section--sm">
+  <div class="ad-slot ad-slot--leader">
+    <!-- Replace with actual AdSense unit:
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXX" data-ad-slot="XXXXXXXX" data-ad-format="auto" data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+    <span class="ad-slot-label">Advertisement</span>
+    <span>728×90 Leaderboard — High-CPC developer audience</span>
+  </div>
+</div>
+
+<!-- ==================== CALCULATOR ==================== -->
+<section class="section" id="calculator">
+  <div class="wrap">
+
+    <div class="eyebrow">Calculator</div>
+    <h2 style="margin-bottom:8px;">Find Your Cheapest Option</h2>
+    <p style="margin-bottom:28px; max-width:520px;">
+      Describe how you use Claude and Cursor. The calculator will show exact monthly costs for every plan and tell you which is cheapest.
+    </p>
+
+    <!-- Tab navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('claude', this)">✦ Claude</button>
+      <button class="tab-btn" onclick="showTab('cursor', this)">⚡ Cursor</button>
+      <button class="tab-btn" onclick="showTab('combined', this)">⊕ Combined</button>
+    </div>
+
+    <!-- ======= CLAUDE TAB ======= -->
+    <div id="tab-claude">
+      <div class="calc-card">
+        <div class="calc-card-header">
+          <div class="calc-card-title">
+            <span class="dot dot-orange"></span>
+            claude_usage_profile.json
+          </div>
+          <span class="tag tag--orange">Claude API + Plans</span>
+        </div>
+        <div class="calc-card-body">
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label" for="c_sessions_day">Daily sessions / conversations</label>
+              <div class="slider-wrap">
+                <input type="range" id="c_sessions_day_range" min="0" max="50" value="5" oninput="syncInput('c_sessions_day', this.value); calcClaude()">
+                <span class="slider-val" id="c_sessions_day_display">5</span>
+              </div>
+              <input type="number" id="c_sessions_day" value="5" min="0" max="9999" oninput="syncSlider('c_sessions_day_range','c_sessions_day_display',this.value); calcClaude()" />
+              <div class="field-hint">How many back-and-forth conversations per day?</div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="c_turns_session">Avg turns per session</label>
+              <div class="slider-wrap">
+                <input type="range" id="c_turns_session_range" min="1" max="40" value="8" oninput="syncInput('c_turns_session', this.value); calcClaude()">
+                <span class="slider-val" id="c_turns_session_display">8</span>
+              </div>
+              <input type="number" id="c_turns_session" value="8" min="1" max="999" oninput="syncSlider('c_turns_session_range','c_turns_session_display',this.value); calcClaude()" />
+              <div class="field-hint">Messages sent per session (both user + Claude).</div>
+            </div>
+          </div>
+
+          <div class="form-grid-3">
+            <div class="field-group">
+              <label class="field-label" for="c_avg_input_tokens">Avg input tokens / turn</label>
+              <input type="number" id="c_avg_input_tokens" value="800" min="1" max="200000" oninput="calcClaude()" />
+              <div class="field-hint">~800 = ~600 words. Long context ≈ 4000+</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="c_avg_output_tokens">Avg output tokens / turn</label>
+              <input type="number" id="c_avg_output_tokens" value="400" min="1" max="8192" oninput="calcClaude()" />
+              <div class="field-hint">~400 = ~300 words. Code heavy ≈ 1000+</div>
+            </div>
+            <div class="field-group">
+              <label class="field-label" for="c_work_days">Work days / month</label>
+              <input type="number" id="c_work_days" value="22" min="1" max="31" oninput="calcClaude()" />
+              <div class="field-hint">Default 22 (5 days/wk)</div>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Preferred model tier</label>
+            <div class="plan-pills" id="claudeModelPills">
+              <span class="plan-pill active" onclick="selectModel(this,'haiku')">Haiku 3.5 (fast/cheap)</span>
+              <span class="plan-pill" onclick="selectModel(this,'sonnet')">Sonnet 4.5 (balanced)</span>
+              <span class="plan-pill" onclick="selectModel(this,'opus')">Opus 4 (most capable)</span>
+            </div>
+            <div class="field-hint" id="claudeModelHint">Haiku 3.5: $0.80/M input · $4.00/M output</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Claude Results -->
+      <div id="claudeResults"></div>
+    </div>
+
+    <!-- ======= CURSOR TAB ======= -->
+    <div id="tab-cursor" style="display:none;">
+      <div class="calc-card">
+        <div class="calc-card-header">
+          <div class="calc-card-title">
+            <span class="dot dot-purple"></span>
+            cursor_usage_profile.json
+          </div>
+          <span class="tag tag--purple">Cursor Plans</span>
+        </div>
+        <div class="calc-card-body">
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label" for="cur_fast_req_day">Fast AI requests / day</label>
+              <div class="slider-wrap">
+                <input type="range" id="cur_fast_req_day_range" min="0" max="100" value="20" oninput="syncInput('cur_fast_req_day', this.value); calcCursor()">
+                <span class="slider-val" id="cur_fast_req_day_display">20</span>
+              </div>
+              <input type="number" id="cur_fast_req_day" value="20" min="0" max="9999" oninput="syncSlider('cur_fast_req_day_range','cur_fast_req_day_display',this.value); calcCursor()" />
+              <div class="field-hint">Tab completions + inline edits + Composer fast. Pro plan includes 500/month.</div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="cur_agent_req_day">Agent / long context requests / day</label>
+              <div class="slider-wrap">
+                <input type="range" id="cur_agent_req_day_range" min="0" max="50" value="5" oninput="syncInput('cur_agent_req_day', this.value); calcCursor()">
+                <span class="slider-val" id="cur_agent_req_day_display">5</span>
+              </div>
+              <input type="number" id="cur_agent_req_day" value="5" min="0" max="9999" oninput="syncSlider('cur_agent_req_day_range','cur_agent_req_day_display',this.value); calcCursor()" />
+              <div class="field-hint">Agent tasks, large codebase context, long diffs.</div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field-group">
+              <label class="field-label" for="cur_seats">Team seats</label>
+              <input type="number" id="cur_seats" value="1" min="1" max="999" oninput="calcCursor()" />
+              <div class="field-hint">1 = personal. Business plan unlocks team features at $40/seat.</div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label" for="cur_work_days">Work days / month</label>
+              <input type="number" id="cur_work_days" value="22" min="1" max="31" oninput="calcCursor()" />
+            </div>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Usage pattern</label>
+            <div class="plan-pills" id="cursorPatternPills">
+              <span class="plan-pill active" onclick="selectPattern(this,'light')">Light (mostly free tier)</span>
+              <span class="plan-pill" onclick="selectPattern(this,'normal')">Normal daily coding</span>
+              <span class="plan-pill" onclick="selectPattern(this,'heavy')">Heavy (agent tasks, large repos)</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Cursor Results -->
+      <div id="cursorResults"></div>
+    </div>
+
+    <!-- ======= COMBINED TAB ======= -->
+    <div id="tab-combined" style="display:none;">
+      <div class="calc-card">
+        <div class="calc-card-header">
+          <div class="calc-card-title">
+            <span class="dot dot-orange"></span>
+            <span class="dot dot-purple"></span>
+            combined_stack.json
+          </div>
+          <span class="tag tag--green">Total Dev Stack</span>
+        </div>
+        <div class="calc-card-body">
+          <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:20px;">
+            Configure both Claude and Cursor in their tabs, then come here for your combined monthly total and stack recommendation.
+          </p>
+          <div id="combinedResults"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== AD SLOT 2 ==================== -->
+<div class="wrap" style="margin-bottom:32px;">
+  <div class="ad-slot ad-slot--rect">
+    <!-- Replace with AdSense unit:
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXX" data-ad-slot="XXXXXXXX" data-ad-format="auto"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
+    <span class="ad-slot-label">Advertisement</span>
+    <span>336×280 — Between results and article — highest CTR</span>
+  </div>
+</div>
+
+<!-- ==================== SEO ARTICLE ==================== -->
+<section class="article-section" id="guide">
+  <div class="wrap">
+    <div class="eyebrow">Guide</div>
+    <h2 style="margin-bottom:8px;">Claude &amp; Cursor Pricing Explained</h2>
+    <p>Everything developers need to know before committing to a plan.</p>
+    <p class="source-note">
+      Last updated: April 27, 2026. Pricing references:
+      <a href="https://anthropic.com/pricing" target="_blank" rel="noopener">Anthropic pricing</a>
+      and
+      <a href="https://cursor.com/pricing" target="_blank" rel="noopener">Cursor pricing</a>.
+      Prices change frequently, so verify official pages before making a purchasing decision.
+    </p>
+    <div class="article-grid">
+
+      <div class="article-block">
+        <h3>Claude Pro vs API: Which Is Cheaper?</h3>
+        <p>Claude Pro at $20/month gives you high-volume conversational access with no per-token billing. Claude API charges per token at rates like $3/M input and $15/M output for Sonnet 4.5. The breakeven is roughly <strong>1–2M tokens/month</strong> — if you exceed that with a mix of long contexts and frequent conversations, Pro wins. If you're a light user doing small tasks a few times a week, API is almost certainly cheaper. This calculator computes your exact breakeven.</p>
+      </div>
+
+      <div class="article-block">
+        <h3>Claude API Pricing Examples</h3>
+        <p>Small automation jobs can stay under a few dollars per month, while long coding sessions with repository context can become expensive quickly. The main cost drivers are output length, long context windows, repeated retries, and agent workflows that call the model many times in a row. Use the calculator's token inputs to model short prompts, large code reviews, and daily assistant usage separately.</p>
+      </div>
+
+      <div class="article-block">
+        <h3>What Is Claude Max and Is It Worth It?</h3>
+        <p>Claude Max is a premium subscription tier ($100/month) offering 5× more usage than Pro, access to extended thinking, and priority access during peak hours. It's designed for power users who hit Pro limits regularly — typically developers running multi-step agent tasks, long document analysis, or processing large codebases through Claude.ai. If you're not hitting your Pro ceiling monthly, Max is not worth it. The API is usually cheaper at very high volumes.</p>
+        <ul>
+          <li>~5× Pro usage limits</li>
+          <li>Priority access during peak hours</li>
+          <li>Projects + longer context windows</li>
+          <li>Best for: daily power users doing agent work</li>
+        </ul>
+      </div>
+
+      <div class="article-block">
+        <h3>Cursor Free vs Pro vs Business</h3>
+        <p>Cursor Free gives you 2,000 completions/month and 50 slow requests — enough to evaluate the product. Cursor Pro at $20/month adds 500 fast requests/month (unlimited slow) and is the right choice for most individual developers. Cursor Business at $40/seat/month adds SSO, audit logs, and enforced privacy mode — worth it for teams at companies with security requirements. The "fast vs slow" request distinction matters: fast uses premium models (GPT-4, Claude Sonnet), slow uses standard models.</p>
+      </div>
+
+      <div class="article-block">
+        <h3>Best AI Coding Setup for Solo Developers</h3>
+        <p>For most solo developers, the lowest-friction stack is one chat subscription for planning and debugging, plus Cursor Pro for editor-native completions and agent work. Add API access only when you need automation, batch processing, or custom scripts. If your monthly API spend consistently exceeds a flat subscription tier, switch more work back to Claude Pro or Max and reserve API usage for programmatic tasks.</p>
+      </div>
+
+      <div class="article-block">
+        <h3>API vs Subscription: The Developer's Decision Framework</h3>
+        <p>Use <strong>subscription plans</strong> when: you want predictable billing, you're a heavy conversational user, you need the web/desktop interface, or you want to avoid tracking token usage. Use the <strong>API</strong> when: you're building applications, you need programmatic access, your usage is infrequent or bursty, or you want to switch models frequently. Many developers run both: a Pro subscription for daily chat and API access for automation. This calculator shows you whether that combination makes sense for your specific numbers.</p>
+      </div>
+
+      <div class="article-block">
+        <h3>How Much Do Developers Actually Spend on AI Tools?</h3>
+        <p>Based on recent community surveys and forum discussions, the typical developer AI spend breaks down roughly as:</p>
+        <ul>
+          <li><strong>Casual:</strong> $20–$30/month (one Pro plan)</li>
+          <li><strong>Active dev:</strong> $50–$80/month (Claude + Cursor Pro)</li>
+          <li><strong>Power user:</strong> $100–$200/month (Max + API + Cursor Business)</li>
+          <li><strong>Team lead (5 seats):</strong> $200–$400/month</li>
+        </ul>
+        <p style="margin-top:8px;">The biggest variable is API usage — it can be $2/month or $200/month depending on automation workflows.</p>
+      </div>
+
+      <div class="article-block">
+        <h3>Cursor + Claude API (BYOK): A Cost-Saving Combination</h3>
+        <p>Cursor supports Bring Your Own Key (BYOK) — you can connect your own Anthropic API key and use Claude models directly inside Cursor, bypassing Cursor's bundled request limits. This is useful if you've already exceeded your 500 fast requests on Pro, or if you want to use Claude Opus 4 (not bundled in standard Pro). Cost tradeoff: BYOK requests are billed at API rates per token, so you need to monitor usage. For very heavy Cursor users, BYOK + Cursor Pro can be cheaper than upgrading to Business.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== AD SLOT 3 ==================== -->
+<div class="wrap section--sm">
+  <div class="ad-slot ad-slot--banner">
+    <!-- Replace with AdSense unit -->
+    <span class="ad-slot-label">Advertisement</span>
+    <span>Responsive Banner — Pre-FAQ placement</span>
+  </div>
+</div>
+
+<!-- ==================== FAQ ==================== -->
+<section class="faq-section" id="faq">
+  <div class="wrap">
+    <div class="eyebrow text-center" style="justify-content:center;">FAQ</div>
+    <h2 class="text-center" style="margin-bottom:8px;">Common Questions</h2>
+    <p class="text-center" style="margin-bottom:0;">From developers who've been here before.</p>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Is Claude API cheaper than Claude Pro?
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-a">It depends entirely on your usage volume. Claude Pro ($20/month) is a flat rate — great for heavy conversational users. The API is pay-per-token, so it's cheaper for light users but can exceed $20/month quickly if you're running large contexts or many requests. The breakeven on claude-sonnet-4-5 is roughly 1–2M tokens/month. Use the calculator above to find your personal breakeven point.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What's the difference between Claude Pro and Claude Max?
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-a">Claude Pro costs $20/month and covers most developers' daily needs. Claude Max costs $100/month and provides approximately 5× the usage limits, priority access during peak hours, and early access to new features like extended thinking. Max is designed for power users who regularly hit Pro's usage ceiling. If you've never seen a "rate limit" message in Claude Pro, you likely don't need Max.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Does Cursor use my Claude API credits?
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-a">By default, Cursor Pro's included requests are billed to Cursor, not to your personal API key. However, Cursor supports BYOK (Bring Your Own Key) — if you connect your Anthropic API key, requests will draw from your API credits instead. BYOK is useful when you've exhausted your Pro fast requests or want to use models not bundled in your plan (like Opus 4).</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How many tokens is a typical coding session?
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-a">A typical coding conversation with file context uses roughly 2,000–6,000 input tokens (depending on how much code you paste) and 500–2,000 output tokens per request. An active coding session with 10–15 back-and-forth turns could use 25,000–80,000 tokens total. At claude-sonnet-4-5 pricing ($3/M input, $15/M output), that's $0.10–$0.40 per session. This adds up to $3–$12/month for 30 daily sessions, well below Pro pricing.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Should I use Cursor Pro or Cursor Business for my team?
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-a">For most small teams and startups, Cursor Pro (at $20/seat) is sufficient. Cursor Business ($40/seat) adds: centralized billing and admin, SSO/SAML integration, audit logs, enforced privacy mode (code not used for model training), and dedicated support. If your company has security requirements around code privacy — especially for proprietary codebases — Business is worth the premium. For solo developers or small teams without compliance needs, Pro is the better value.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Are these prices accurate and up to date?
+          <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="faq-a">Prices are based on publicly available information and updated periodically. However, Anthropic and Cursor both update pricing regularly. Always verify on the official pricing pages before making a decision: anthropic.com/pricing and cursor.com/pricing. All prices in this calculator are editable — if you know the current rate, update the inputs to match.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="logo">
+        <div class="logo-icon">$</div>
+        claude-cursor-calc
+      </div>
+      <div class="disclaimer">
+        <strong>⚠ Disclaimer:</strong> Prices may change without notice. This tool uses estimated averages for token counts. Verify the latest pricing at <a href="https://anthropic.com/pricing" target="_blank" rel="noopener">anthropic.com/pricing</a> and <a href="https://cursor.com/pricing" target="_blank" rel="noopener">cursor.com/pricing</a> before making financial decisions.
+      </div>
+      <div class="footer-links">
+        <a href="#calculator">Calculator</a>
+        <a href="#guide">Guide</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <p class="copyright">© <span id="year"></span> claude-cursor-calc · Free developer tool · No affiliation with Anthropic or Cursor</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ==================== JAVASCRIPT ==================== -->
+<script>
+  // ===========================================================
+  // PRICING DATA — Update these values when providers change pricing.
+  // All prices in USD.
+  // ===========================================================
+  const PRICING = {
+    claude: {
+      // Subscription plans (flat monthly)
+      plans: {
+        free:  { label: "Claude Free",  monthly: 0,   limits: "Limited daily usage" },
+        pro:   { label: "Claude Pro",   monthly: 20,  limits: "High usage limits" },
+        max5:  { label: "Claude Max (5×)", monthly: 100, limits: "5× Pro limits + priority" },
+        max20: { label: "Claude Max (20×)", monthly: 200, limits: "20× Pro limits, for teams" },
+        team:  { label: "Claude Team (per seat)", monthly: 30, limits: "Team features, min 5 seats" },
+      },
+      // API pricing per 1M tokens
+      models: {
+        haiku:  { label: "Haiku 3.5",   inputPer1M: 0.80,  outputPer1M: 4.00,  hint: "Haiku 3.5: $0.80/M input · $4.00/M output" },
+        sonnet: { label: "Sonnet 4.5",  inputPer1M: 3.00,  outputPer1M: 15.00, hint: "Sonnet 4.5: $3.00/M input · $15.00/M output" },
+        opus:   { label: "Opus 4",      inputPer1M: 15.00, outputPer1M: 75.00, hint: "Opus 4: $15.00/M input · $75.00/M output" },
+      }
+    },
+    cursor: {
+      plans: {
+        free:     { label: "Cursor Free",     monthly: 0,  perSeat: false, limits: "2,000 completions · 50 slow requests" },
+        pro:      { label: "Cursor Pro",      monthly: 20, perSeat: true,  limits: "500 fast req/mo · unlimited slow" },
+        business: { label: "Cursor Business", monthly: 40, perSeat: true,  limits: "All Pro + SSO + privacy mode + admin" },
+      },
+      // Overage pricing (approximate, using BYOK API rates)
+      overagePer1kFastReq: 0.04, // ~$40/1000 fast requests (est. Sonnet API cost at ~1k tokens/req)
+    }
+  };
+
+  // ===========================================================
+  // STATE
+  // ===========================================================
+  let selectedModel = 'haiku';
+  let selectedPattern = 'light';
+
+  // ===========================================================
+  // SYNC helpers for slider ↔ input
+  // ===========================================================
+  function syncInput(inputId, val) {
+    document.getElementById(inputId).value = val;
+  }
+  function syncSlider(rangeId, displayId, val) {
+    const range = document.getElementById(rangeId);
+    const disp  = document.getElementById(displayId);
+    if (range) range.value = Math.min(val, range.max);
+    if (disp)  disp.textContent = val;
+  }
+
+  // ===========================================================
+  // MODEL / PATTERN SELECTORS
+  // ===========================================================
+  function selectModel(el, model) {
+    selectedModel = model;
+    document.querySelectorAll('#claudeModelPills .plan-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('claudeModelHint').textContent = PRICING.claude.models[model].hint;
+    calcClaude();
+  }
+  function selectPattern(el, pattern) {
+    selectedPattern = pattern;
+    document.querySelectorAll('#cursorPatternPills .plan-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    // Apply pattern presets
+    if (pattern === 'light')  { setVal('cur_fast_req_day',8);  setVal('cur_agent_req_day',1); }
+    if (pattern === 'normal') { setVal('cur_fast_req_day',25); setVal('cur_agent_req_day',5); }
+    if (pattern === 'heavy')  { setVal('cur_fast_req_day',60); setVal('cur_agent_req_day',15); }
+    syncSlider('cur_fast_req_day_range','cur_fast_req_day_display', document.getElementById('cur_fast_req_day').value);
+    syncSlider('cur_agent_req_day_range','cur_agent_req_day_display', document.getElementById('cur_agent_req_day').value);
+    calcCursor();
+  }
+  function setVal(id, val) {
+    document.getElementById(id).value = val;
+  }
+
+  // ===========================================================
+  // CLAUDE CALCULATOR
+  // ===========================================================
+  function calcClaude() {
+    const sessions   = parseFloat(document.getElementById('c_sessions_day').value)   || 0;
+    const turns      = parseFloat(document.getElementById('c_turns_session').value)   || 1;
+    const inputTok   = parseFloat(document.getElementById('c_avg_input_tokens').value)|| 0;
+    const outputTok  = parseFloat(document.getElementById('c_avg_output_tokens').value)||0;
+    const workDays   = parseFloat(document.getElementById('c_work_days').value)       || 22;
+
+    const model = PRICING.claude.models[selectedModel];
+
+    // Monthly token totals
+    const monthlyTurns       = sessions * turns * workDays;
+    const monthlyInputTokens  = monthlyTurns * inputTok;
+    const monthlyOutputTokens = monthlyTurns * outputTok;
+
+    const apiCost = (monthlyInputTokens / 1_000_000 * model.inputPer1M)
+                  + (monthlyOutputTokens / 1_000_000 * model.outputPer1M);
+
+    const plans = PRICING.claude.plans;
+    const results = [
+      { id: 'api',   label: 'API Only',         cost: apiCost,              sub: `${fmtNum(monthlyInputTokens + monthlyOutputTokens)} tokens/mo`, color: '#60a5fa' },
+      { id: 'free',  label: 'Claude Free',       cost: 0,                    sub: 'Usage limited — may not cover need', color: '#34d399' },
+      { id: 'pro',   label: 'Claude Pro',        cost: plans.pro.monthly,   sub: plans.pro.limits, color: '#f97316' },
+      { id: 'max5',  label: 'Claude Max (5×)',   cost: plans.max5.monthly,  sub: plans.max5.limits, color: '#a78bfa' },
+      { id: 'max20', label: 'Claude Max (20×)',  cost: plans.max20.monthly, sub: plans.max20.limits, color: '#f87171' },
+    ];
+
+    // Determine best paid option
+    const paid = results.filter(r => r.id !== 'free');
+    paid.sort((a,b) => a.cost - b.cost);
+    const best = paid[0];
+
+    // Breakeven
+    const breakevenTokens = breakEvenTokens(model, plans.pro.monthly);
+
+    // Render
+    const container = document.getElementById('claudeResults');
+    container.className = 'animate-in';
+    container.innerHTML = `
+      <div class="results-panel" style="margin-top:20px;">
+        <div class="result-box ${best.id === 'api' ? 'winner' : ''}">
+          <div class="result-box-label">API Monthly Cost</div>
+          <div class="result-box-val">${fmt(apiCost)}</div>
+          <div class="result-box-sub">${fmtNum(monthlyInputTokens+monthlyOutputTokens)} tokens · ${model.label}</div>
+          ${best.id === 'api' ? '<div class="winner-badge">✓ cheapest for your usage</div>' : ''}
+        </div>
+        <div class="result-box ${best.id === 'pro' ? 'winner' : ''}">
+          <div class="result-box-label">Claude Pro</div>
+          <div class="result-box-val">$20<span style="font-size:1rem">/mo</span></div>
+          <div class="result-box-sub">Flat rate · no token counting</div>
+          ${best.id === 'pro' ? '<div class="winner-badge">✓ cheapest for your usage</div>' : ''}
+        </div>
+        <div class="result-box ${best.id === 'max5' ? 'winner' : ''}">
+          <div class="result-box-label">Claude Max (5×)</div>
+          <div class="result-box-val">$100<span style="font-size:1rem">/mo</span></div>
+          <div class="result-box-sub">5× Pro limits · priority access</div>
+          ${best.id === 'max5' ? '<div class="winner-badge">✓ cheapest for your usage</div>' : ''}
+        </div>
+        <div class="result-box">
+          <div class="result-box-label">Annual Saving (API→Pro)</div>
+          <div class="result-box-val ${apiCost < plans.pro.monthly ? 'text-orange' : 'text-green'}">${fmt(Math.abs((apiCost - plans.pro.monthly)*12))}</div>
+          <div class="result-box-sub">${apiCost < plans.pro.monthly ? 'API saves vs Pro/year' : 'Pro saves vs API/year'}</div>
+        </div>
+      </div>
+
+      <!-- Breakeven bar -->
+      ${renderBreakevenBar(monthlyInputTokens + monthlyOutputTokens, breakevenTokens, model)}
+
+      <!-- Comparison table -->
+      <div class="compare-wrap">
+        <table>
+          <thead><tr>
+            <th>Option</th>
+            <th>Monthly Cost</th>
+            <th>Annual Cost</th>
+            <th>vs API</th>
+            <th>Best for</th>
+          </tr></thead>
+          <tbody>
+            ${results.map(r => {
+              const vsApi = r.cost - apiCost;
+              const isBest = r.id === best.id;
+              return `<tr>
+                <td><span class="plan-badge"><span style="color:${r.color}">●</span> ${r.label}</span>${isBest ? ' <span class="winner-badge">best</span>' : ''}</td>
+                <td class="${isBest ? 'best' : ''}">${fmt(r.cost)}</td>
+                <td class="${isBest ? 'best' : ''}">${fmt(r.cost * 12)}</td>
+                <td class="${vsApi < 0 ? 'best' : vsApi > 0 ? 'worst' : ''}">${r.id === 'api' ? '—' : (vsApi > 0 ? '+' : '') + fmt(vsApi)}</td>
+                <td style="font-size:0.78rem; color:var(--text-muted);">${r.sub}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Recommendation -->
+      ${renderClaudeRec(apiCost, plans, monthlyInputTokens + monthlyOutputTokens, breakevenTokens, sessions, workDays)}
+    `;
+
+    calcCombined();
+  }
+
+  function breakEvenTokens(model, planCost) {
+    // Solve: tokens * (inputRatio * inputPrice + outputRatio * outputPrice) / 1M = planCost
+    // Assume 2:1 input:output ratio
+    const blendedPer1M = (model.inputPer1M * 2 + model.outputPer1M * 1) / 3;
+    return (planCost / blendedPer1M) * 1_000_000;
+  }
+
+  function renderBreakevenBar(actualTokens, breakevenTokens, model) {
+    const pct = Math.min(actualTokens / (breakevenTokens * 1.6) * 100, 100);
+    const breakPct = (breakevenTokens / (breakevenTokens * 1.6)) * 100;
+    const apiIsWinning = actualTokens < breakevenTokens;
+
+    return `
+      <div class="breakeven-section">
+        <div class="breakeven-title">// Breakeven: API vs Claude Pro — based on ${model.label}</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">
+          <span>Your usage: <span style="color:var(--text-primary); font-weight:600">${fmtNum(actualTokens)} tokens/mo</span></span>
+          <span>Breakeven: <span style="color:var(--amber); font-weight:600">${fmtNum(breakevenTokens)} tokens/mo</span></span>
+        </div>
+        <div class="breakeven-bar-wrap">
+          <div class="breakeven-fill-api" style="width:${Math.min(pct, breakPct)}%"><span>${apiIsWinning ? 'API cheaper ←' : ''}</span></div>
+          <div class="breakeven-fill-plan" style="width:${Math.max(100 - pct, 100 - breakPct)}%"><span>${!apiIsWinning ? '→ Pro cheaper' : ''}</span></div>
+          <div class="breakeven-marker" style="left:${breakPct}%"></div>
+        </div>
+        <div class="breakeven-labels">
+          <span style="color:var(--blue)">◀ API wins (under breakeven)</span>
+          <span style="color:var(--amber)">⬆ breakeven</span>
+          <span style="color:var(--orange)">Pro/Max wins (over breakeven) ▶</span>
+        </div>
+      </div>`;
+  }
+
+  function renderClaudeRec(apiCost, plans, actualTokens, breakevenTokens, sessions, workDays) {
+    const monthlyUsage = sessions * workDays;
+    if (apiCost < 5 && monthlyUsage < 20) {
+      return rec('green', '💡', 'API is Your Best Option', `Your estimated API cost is <strong>${fmt(apiCost)}/month</strong> — well below Claude Pro's $20/mo flat rate. Stick with API access unless you want unlimited conversational use via the Claude.ai interface.`);
+    }
+    if (apiCost > plans.max5.monthly) {
+      return rec('orange', '⚡', 'Consider Claude Max', `At this usage level, your API cost would be <strong>${fmt(apiCost)}/month</strong>. Claude Max at $100/mo might actually save you money while adding convenience and priority access. Run the numbers with your exact token counts to confirm.`);
+    }
+    if (actualTokens > breakevenTokens) {
+      return rec('amber', '📊', 'Claude Pro Likely Worth It', `You're above the breakeven point (<strong>${fmtNum(breakevenTokens)} tokens/mo</strong>). Claude Pro at $20/mo is almost certainly cheaper than API access at this volume. Plus, no token counting stress.`);
+    }
+    return rec('blue', '🔍', 'API or Pro — Very Close', `Your usage sits near the breakeven zone. The difference between API and Pro is under $5/month. Choose based on preference: API for flexibility and programmatic access; Pro for unlimited conversational use on claude.ai.`);
+  }
+
+  // ===========================================================
+  // CURSOR CALCULATOR
+  // ===========================================================
+  function calcCursor() {
+    const fastReqDay  = parseFloat(document.getElementById('cur_fast_req_day').value)  || 0;
+    const agentReqDay = parseFloat(document.getElementById('cur_agent_req_day').value) || 0;
+    const seats       = Math.max(1, parseInt(document.getElementById('cur_seats').value) || 1);
+    const workDays    = parseFloat(document.getElementById('cur_work_days').value)      || 22;
+
+    const monthlyFastReq  = fastReqDay * workDays;
+    const monthlyAgentReq = agentReqDay * workDays;
+    const totalMonthlyReq = monthlyFastReq + monthlyAgentReq;
+
+    const plans = PRICING.cursor.plans;
+    const overagePer1k = PRICING.cursor.overagePer1kFastReq;
+
+    // Pro plan: 500 fast req/mo included, calculate overage
+    const proIncluded = 500;
+    const proOverageReq = Math.max(0, monthlyFastReq - proIncluded);
+    const proOverageCost = proOverageReq / 1000 * overagePer1k * 1000; // est $0.04/req
+    const proCostPerSeat = plans.pro.monthly + proOverageCost;
+    const proTotalCost   = proCostPerSeat * seats;
+
+    const businessTotalCost = plans.business.monthly * seats;
+    const freeTotalCost = 0;
+
+    const results = [
+      { label: 'Cursor Free',     cost: freeTotalCost,     sub: `${Math.min(2000, monthlyFastReq)} completions (capped)`, color: '#34d399', note: monthlyFastReq > 2000 ? '⚠ will hit limit' : '' },
+      { label: 'Cursor Pro',      cost: proTotalCost,      sub: `${seats} seat${seats>1?'s':''} · ${proOverageReq > 0 ? proOverageReq + ' overage req' : 'within limit'}`, color: '#f97316', note: '' },
+      { label: 'Cursor Business', cost: businessTotalCost, sub: `${seats} seat${seats>1?'s':''} · SSO + privacy`, color: '#a78bfa', note: '' },
+    ];
+
+    const paid = results.filter(r => r.label !== 'Cursor Free');
+    paid.sort((a,b) => a.cost - b.cost);
+    const best = paid[0];
+
+    const container = document.getElementById('cursorResults');
+    container.className = 'animate-in';
+    container.innerHTML = `
+      <div class="results-panel" style="margin-top:20px;">
+        <div class="result-box">
+          <div class="result-box-label">Monthly Requests</div>
+          <div class="result-box-val">${fmtNum(totalMonthlyReq)}</div>
+          <div class="result-box-sub">${fmtNum(monthlyFastReq)} fast · ${fmtNum(monthlyAgentReq)} agent</div>
+        </div>
+        <div class="result-box ${best.label === 'Cursor Pro' ? 'winner' : ''}">
+          <div class="result-box-label">Cursor Pro Total</div>
+          <div class="result-box-val">${fmt(proTotalCost)}<span style="font-size:0.9rem">/mo</span></div>
+          <div class="result-box-sub">${seats} seat${seats>1?'s':''} · ${proOverageReq>0 ? fmt(proOverageCost)+' overage' : 'no overage'}</div>
+          ${best.label === 'Cursor Pro' ? '<div class="winner-badge">✓ best value</div>' : ''}
+        </div>
+        <div class="result-box ${best.label === 'Cursor Business' ? 'winner' : ''}">
+          <div class="result-box-label">Cursor Business</div>
+          <div class="result-box-val">${fmt(businessTotalCost)}<span style="font-size:0.9rem">/mo</span></div>
+          <div class="result-box-sub">${seats} seat${seats>1?'s':''} · full team features</div>
+          ${best.label === 'Cursor Business' ? '<div class="winner-badge">✓ best value</div>' : ''}
+        </div>
+        <div class="result-box">
+          <div class="result-box-label">Annual (best plan)</div>
+          <div class="result-box-val text-green">${fmt(best.cost * 12)}</div>
+          <div class="result-box-sub">with ${best.label}</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="compare-wrap">
+        <table>
+          <thead><tr>
+            <th>Plan</th>
+            <th>Per Seat/Mo</th>
+            <th>Total/Mo (${seats} seat${seats>1?'s':''})</th>
+            <th>Annual Total</th>
+            <th>Overage</th>
+            <th>Best for</th>
+          </tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="plan-badge"><span style="color:var(--green)">●</span> Cursor Free</span></td>
+              <td class="best">$0</td>
+              <td class="best">$0</td>
+              <td class="best">$0</td>
+              <td style="color:${monthlyFastReq > 2000 ? 'var(--red)' : 'var(--text-muted)'}; font-size:0.78rem;">${monthlyFastReq > 2000 ? '⚠ will hit limit' : 'safe'}</td>
+              <td style="font-size:0.78rem; color:var(--text-muted);">Evaluation only</td>
+            </tr>
+            <tr>
+              <td><span class="plan-badge"><span style="color:var(--orange)">●</span> Cursor Pro</span>${best.label==='Cursor Pro'?' <span class="winner-badge">best</span>':''}</td>
+              <td class="${best.label==='Cursor Pro'?'best':''}">${fmt(proCostPerSeat)}</td>
+              <td class="${best.label==='Cursor Pro'?'best':''}">${fmt(proTotalCost)}</td>
+              <td class="${best.label==='Cursor Pro'?'best':''}">${fmt(proTotalCost*12)}</td>
+              <td style="font-size:0.78rem; color:var(--text-muted);">${proOverageReq > 0 ? fmt(proOverageCost)+' est.' : 'none'}</td>
+              <td style="font-size:0.78rem; color:var(--text-muted);">Solo devs &amp; small teams</td>
+            </tr>
+            <tr>
+              <td><span class="plan-badge"><span style="color:var(--purple)">●</span> Cursor Business</span>${best.label==='Cursor Business'?' <span class="winner-badge">best</span>':''}</td>
+              <td class="${best.label==='Cursor Business'?'best':''}">${fmt(plans.business.monthly)}</td>
+              <td class="${best.label==='Cursor Business'?'best':''}">${fmt(businessTotalCost)}</td>
+              <td class="${best.label==='Cursor Business'?'best':''}">${fmt(businessTotalCost*12)}</td>
+              <td style="font-size:0.78rem; color:var(--text-muted);">no overage</td>
+              <td style="font-size:0.78rem; color:var(--text-muted);">Teams needing SSO/privacy</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      ${renderCursorRec(monthlyFastReq, proOverageReq, seats, proTotalCost, businessTotalCost)}
+    `;
+
+    calcCombined();
+  }
+
+  function renderCursorRec(monthlyFast, overage, seats, proCost, bizCost) {
+    if (monthlyFast <= 500 && seats === 1) {
+      return rec('green', '✅', 'Cursor Pro Is All You Need', `Your fast request usage (${fmtNum(monthlyFast)}/mo) is within the 500 included in Cursor Pro. At $20/mo, Pro is the clear choice unless you need Business-specific features like SSO.`);
+    }
+    if (overage > 200 && seats >= 3) {
+      return rec('amber', '📊', 'Business Plan May Be More Economical', `With ${fmtNum(overage)} overage requests/mo and ${seats} seats, Business ($40/seat flat) vs Pro + overage is worth comparing. Business also removes overage risk entirely.`);
+    }
+    if (seats >= 5) {
+      return rec('orange', '🏢', 'Evaluate Business Plan', `For ${seats} seats, Cursor Business ($${bizCost.toFixed(0)}/mo total) adds SSO and centralized admin. If your company has a security policy around code privacy, the upgrade is usually required.`);
+    }
+    return rec('blue', '⚡', 'Cursor Pro with BYOK Option', `Pro at ${fmt(proCost)}/mo covers your usage. If you hit the 500 fast request cap, consider enabling BYOK (Bring Your Own Key) to use your Claude API credits for overage requests instead of upgrading plans.`);
+  }
+
+  // ===========================================================
+  // COMBINED VIEW
+  // ===========================================================
+  function calcCombined() {
+    if (document.getElementById('tab-combined').style.display === 'none') return;
+
+    // Re-run both calcs to ensure values are fresh
+    const c_sessions  = parseFloat(document.getElementById('c_sessions_day').value) || 0;
+    const c_turns     = parseFloat(document.getElementById('c_turns_session').value) || 1;
+    const c_input     = parseFloat(document.getElementById('c_avg_input_tokens').value) || 0;
+    const c_output    = parseFloat(document.getElementById('c_avg_output_tokens').value) || 0;
+    const c_workdays  = parseFloat(document.getElementById('c_work_days').value) || 22;
+    const model       = PRICING.claude.models[selectedModel];
+    const monthlyTurns = c_sessions * c_turns * c_workdays;
+    const apiCost = (monthlyTurns * c_input / 1e6 * model.inputPer1M)
+                  + (monthlyTurns * c_output / 1e6 * model.outputPer1M);
+
+    const clausePro   = PRICING.claude.plans.pro.monthly;
+    const clauseMax   = PRICING.claude.plans.max5.monthly;
+    const bestClaude  = apiCost < clausePro ? apiCost : clausePro;
+
+    const cur_fast    = parseFloat(document.getElementById('cur_fast_req_day').value) || 0;
+    const cur_agent   = parseFloat(document.getElementById('cur_agent_req_day').value) || 0;
+    const cur_seats   = Math.max(1, parseInt(document.getElementById('cur_seats').value) || 1);
+    const cur_work    = parseFloat(document.getElementById('cur_work_days').value) || 22;
+    const monthlyFast = cur_fast * cur_work;
+    const overage     = Math.max(0, monthlyFast - 500);
+    const proCost     = (PRICING.cursor.plans.pro.monthly + overage * 0.04) * cur_seats;
+    const bizCost     = PRICING.cursor.plans.business.monthly * cur_seats;
+    const bestCursor  = Math.min(proCost, bizCost);
+
+    const combinedBest = bestClaude + bestCursor;
+    const combinedPro  = clausePro + proCost;
+    const combinedMax  = clauseMax + proCost;
+
+    document.getElementById('combinedResults').innerHTML = `
+      <div class="results-panel">
+        <div class="result-box winner">
+          <div class="result-box-label">Cheapest Stack</div>
+          <div class="result-box-val text-green">${fmt(combinedBest)}<span style="font-size:0.9rem">/mo</span></div>
+          <div class="result-box-sub">Optimal plan for each tool</div>
+          <div class="winner-badge">✓ recommended</div>
+        </div>
+        <div class="result-box">
+          <div class="result-box-label">Pro + Pro Stack</div>
+          <div class="result-box-val">${fmt(combinedPro)}<span style="font-size:0.9rem">/mo</span></div>
+          <div class="result-box-sub">Claude Pro + Cursor Pro</div>
+        </div>
+        <div class="result-box caution">
+          <div class="result-box-label">Max + Pro Stack</div>
+          <div class="result-box-val">${fmt(combinedMax)}<span style="font-size:0.9rem">/mo</span></div>
+          <div class="result-box-sub">Claude Max + Cursor Pro</div>
+        </div>
+        <div class="result-box">
+          <div class="result-box-label">Annual (cheapest)</div>
+          <div class="result-box-val">${fmt(combinedBest * 12)}</div>
+          <div class="result-box-sub">per year</div>
+        </div>
+      </div>
+
+      <div class="compare-wrap" style="margin-top:20px;">
+        <table>
+          <thead><tr><th>Stack</th><th>Claude</th><th>Cursor (${cur_seats} seat${cur_seats>1?'s':''})</th><th>Monthly Total</th><th>Annual</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Optimal</strong> <span class="winner-badge">recommended</span></td>
+              <td class="best">${fmt(bestClaude)} <span style="font-size:0.72rem; color:var(--text-muted);">(${apiCost < clausePro ? 'API' : 'Pro'})</span></td>
+              <td class="best">${fmt(bestCursor)} <span style="font-size:0.72rem; color:var(--text-muted);">(${proCost <= bizCost ? 'Pro' : 'Business'})</span></td>
+              <td class="best">${fmt(combinedBest)}</td>
+              <td class="best">${fmt(combinedBest*12)}</td>
+            </tr>
+            <tr>
+              <td>Claude Pro + Cursor Pro</td>
+              <td>${fmt(clausePro)}</td>
+              <td>${fmt(proCost)}</td>
+              <td>${fmt(combinedPro)}</td>
+              <td>${fmt(combinedPro*12)}</td>
+            </tr>
+            <tr>
+              <td>Claude Max + Cursor Pro</td>
+              <td>${fmt(clauseMax)}</td>
+              <td>${fmt(proCost)}</td>
+              <td>${fmt(combinedMax)}</td>
+              <td>${fmt(combinedMax*12)}</td>
+            </tr>
+            <tr>
+              <td>Claude API + Cursor Pro</td>
+              <td>${fmt(apiCost)}</td>
+              <td>${fmt(proCost)}</td>
+              <td>${fmt(apiCost + proCost)}</td>
+              <td>${fmt((apiCost + proCost)*12)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      ${rec('green', '🎯', 'Your Optimal Developer Stack', `Based on your inputs, the cheapest full Claude + Cursor setup costs <strong>${fmt(combinedBest)}/month</strong> (${fmt(combinedBest*12)}/year). Use <strong>${apiCost < clausePro ? 'Claude API with '+model.label : 'Claude Pro'}</strong> for your AI assistant needs, and <strong>${proCost <= bizCost ? 'Cursor Pro' : 'Cursor Business'}</strong> for your editor.`)}
+    `;
+  }
+
+  // ===========================================================
+  // HELPERS
+  // ===========================================================
+  function fmt(n) {
+    if (n === undefined || n === null || isNaN(n)) return '$0.00';
+    return '$' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+  function fmtNum(n) {
+    if (!n) return '0';
+    if (n >= 1_000_000) return (n/1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000)     return (n/1_000).toFixed(0) + 'k';
+    return Math.round(n).toString();
+  }
+  function rec(color, icon, title, body) {
+    return `<div class="rec-card ${color}">
+      <div class="rec-icon">${icon}</div>
+      <div>
+        <div class="rec-title">${title}</div>
+        <div class="rec-body">${body}</div>
+      </div>
+    </div>`;
+  }
+
+  // ===========================================================
+  // TAB NAVIGATION
+  // ===========================================================
+  function showTab(tab, btn) {
+    ['claude','cursor','combined'].forEach(t => {
+      document.getElementById('tab-'+t).style.display = t === tab ? 'block' : 'none';
+    });
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (tab === 'combined') calcCombined();
+  }
+
+  // ===========================================================
+  // FAQ ACCORDION
+  // ===========================================================
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ===========================================================
+  // INIT
+  // ===========================================================
+  document.getElementById('year').textContent = new Date().getFullYear();
+  // Initial calculations
+  calcClaude();
+  calcCursor();
+</script>
+
+</body>
+</html>
